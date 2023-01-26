@@ -22,6 +22,7 @@ ufList();
 const rua = document.querySelector("#rua");
 const bairro = document.querySelector("#bairro");
 const cidade = document.querySelector("#cidade");
+const numero = document.querySelector("#numero");
 const select = document.querySelector("#uf");
 const uf = (data) => {
     for (const value of data) {
@@ -37,7 +38,7 @@ cep === null || cep === void 0 ? void 0 : cep.addEventListener("keyup", (e) => {
     if (cep.value.length === 8 &&
         e.key !== "ArrowLeft" &&
         e.key !== "ArrowRight") {
-        cep.blur();
+        numero.focus();
         endpoints.viacep = `https://viacep.com.br/ws/${cep.value}/json`;
         cepInfo();
     }

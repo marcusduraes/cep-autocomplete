@@ -8,49 +8,58 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const endpoints = {
-    ibge: `https://servicodados.ibge.gov.br/api/v1/localidades/estados`,
-    viacep: `https://viacep.com.br/ws`,
-};
-let ufList = () => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield fetch(endpoints.ibge);
-    let data = yield response.json();
-    data = data.map((el) => el.sigla);
-    uf(data.sort());
-});
-ufList();
 const rua = document.querySelector("#rua");
 const bairro = document.querySelector("#bairro");
 const cidade = document.querySelector("#cidade");
 const numero = document.querySelector("#numero");
-const select = document.querySelector("#uf");
-const uf = (data) => {
+const selectUf = document.querySelector("#uf");
+const cep = document.querySelector("#cep");
+cep.maxLength = 8;
+const endpoints = {
+    ibge: `https://servicodados.ibge.gov.br/api/v1/localidades/estados`,
+    viacep: `https://viacep.com.br/ws`,
+};
+let apiGetUfData = () => __awaiter(void 0, void 0, void 0, function* () {
+    const response = yield fetch(endpoints.ibge);
+    let data = yield response.json();
+    data = data.map((el) => el.sigla);
+    setUfOption(data.sort());
+});
+apiGetUfData();
+const setUfOption = (data) => {
     for (const value of data) {
         const option = document.createElement("option");
         option.setAttribute("value", value);
         option.textContent = value;
-        select === null || select === void 0 ? void 0 : select.appendChild(option);
+        selectUf === null || selectUf === void 0 ? void 0 : selectUf.appendChild(option);
     }
 };
-const cep = document.querySelector("#cep");
-cep.maxLength = 8;
 cep === null || cep === void 0 ? void 0 : cep.addEventListener("keyup", (e) => {
     if (cep.value.length === 8 &&
         e.key !== "ArrowLeft" &&
         e.key !== "ArrowRight") {
-        numero.focus();
-        endpoints.viacep = `https://viacep.com.br/ws/${cep.value}/json`;
-        cepInfo();
+        const apiGetCepData = () => __awaiter(void 0, void 0, void 0, function* () {
+            endpoints.viacep = `https://viacep.com.br/ws/${cep.value}/json`;
+            const response = yield fetch(endpoints.viacep);
+            let data = yield response.json();
+            setInputValues(data);
+        });
+        apiGetCepData();
     }
-});
-const cepInfo = () => __awaiter(void 0, void 0, void 0, function* () {
-    const response = yield fetch(endpoints.viacep);
-    let data = yield response.json();
-    setInputValues(data);
+    else {
+        const clearInput = () => {
+            rua.value = "";
+            bairro.value = "";
+            cidade.value = "";
+            selectUf.value = "AC";
+        };
+        clearInput();
+    }
 });
 const setInputValues = (data) => {
     rua.value = data.logradouro;
     bairro.value = data.bairro;
     cidade.value = data.localidade;
-    select.value = data.uf;
+    selectUf.value = data.uf;
+    numero.focus();
 };
